@@ -1,3 +1,4 @@
+import streamlit as st
 
 def get_specific_demand_days(df, threshold):
     high_demand_days = df.loc[df['cnt'] > threshold]
@@ -23,6 +24,8 @@ def compare_weather_demand(df,weather_code_1,weather_code_2):
     difference_in_demand = average_demand_1 - average_demand_2
     percentage_difference = difference_in_demand / average_demand_2 *100
     return difference_in_demand, percentage_difference
+
+
 
 
 
