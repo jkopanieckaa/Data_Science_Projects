@@ -1,0 +1,8 @@
+# Streamlit dashboard
+streamlit
+pandas
+plotly
+
+# Exploratory data analysis
+numpy
+matplotlib
