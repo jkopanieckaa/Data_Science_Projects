@@ -56,7 +56,7 @@ Bike_Sharing_Demand_Analysis/
 **2. Install the required packages:**
 
 ```bash
-python -m pip install requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 **3. Launch the dashboard in project directory**:
