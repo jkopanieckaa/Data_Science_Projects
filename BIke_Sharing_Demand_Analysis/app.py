@@ -6,6 +6,7 @@ st.title("Bike Sharing Demand Analysis")
 st.markdown("This [dataset](https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset) contains daily bike rental counts for 2011 and 2012")
 df = pd.read_csv('day.csv')
 
+st.subheader("Bike Rental Demand")
 year = st.pills("Select year:",('2011','2012'), selection_mode="single")
 month = st.pills('Select month:',['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], selection_mode = 'single')
 weather = st.pills('Select weather condition:',['Clear skies or partly cloudy','Mist or cloudy','Light snow or rain'], selection_mode = 'single')
@@ -19,6 +20,8 @@ weather_dict = {'Clear skies or partly cloudy': 1,'Mist or cloudy': 2,'Light sno
 
 
 filtered_df = df.copy()
+filtered_df['dteday'] = pd.to_datetime(filtered_df['dteday'])
+
 if year is not None or month is not None or weather is not None:
     if year is not None:
         filtered_df = filtered_df[filtered_df['yr'] == years[year]]
@@ -39,11 +42,9 @@ if not filtered_df.empty:
     days_analyzed = filtered_df.shape[0]
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Rentals count",rentals_count)
+    col1.metric("Total rentals",rentals_count)
     col2.metric("Average daily rentals",avg_daily_rentals)
     col3.metric("Days analyzed",days_analyzed)
-
-    filtered_df['dteday'] = pd.to_datetime(filtered_df['dteday'])
 
     if month is not None or weather is not None:
         fig_rentals = px.line(filtered_df, x = 'dteday',y = 'cnt', markers = True)
@@ -53,6 +54,23 @@ if not filtered_df.empty:
         monthly_demand = filtered_df.groupby(['yr', 'mnth'])['cnt'].mean().reset_index()
         monthly_demand['date'] = pd.to_datetime(dict(year=monthly_demand['yr'] + 2011, month=monthly_demand['mnth'], day=1))
         fig_rentals = px.line(monthly_demand, x='date', y='cnt', markers=True)
+        fig_rentals.update_layout(xaxis_title='Date', yaxis_title='Rentals count')
         st.plotly_chart(fig_rentals)
 else:
     st.error("No data found for the selected filters")
+
+st.subheader("Year over year comparison")
+year_over_year = df.groupby(['yr', 'mnth'])['cnt'].mean().reset_index()
+year_over_year['yr'] = year_over_year['yr'].map({0: '2011', 1: '2012'})
+fig_years = px.line(year_over_year, x = 'mnth', y = 'cnt',markers=True, color = 'yr')
+fig_years.update_layout(xaxis_title='Month', yaxis_title='Average daily rentals',legend_title_text='Year')
+fig_years.update_xaxes(dtick=1)
+st.plotly_chart(fig_years)
+
+st.subheader("Weather condition comparison")
+weather_condition = df.groupby('weathersit')['cnt'].mean().reset_index()
+weather_condition['weathersit'] = weather_condition['weathersit'].map({1: 'Clear skies or partly cloudy', 2: 'Mist or cloudy', 3: 'Light snow or rain'})
+fig_weather = px.bar(weather_condition, x = 'weathersit',y='cnt')
+fig_weather.update_layout(xaxis_title='Weather conditions', yaxis_title='Average daily rentals')
+st.plotly_chart(fig_weather)
+
